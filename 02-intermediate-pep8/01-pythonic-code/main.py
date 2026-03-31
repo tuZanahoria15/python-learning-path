@@ -223,7 +223,14 @@ example_kwargs(
     retries=3,
 )
 
-API_KEY = "948a1310738140a59f74fb160f80aa6d"
+# This import is necessary to load environment variables from a .env file
+# Which is a common practice for managing sensitive information like API keys without hardcoding them in the source code.
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # Load environment variables from .env file
+
+API_KEY = os.getenv("OPENAI_API_KEY")
 BASE_URL = "https://newsapi.org/v2/everything"
 
 # Importing necessary libraries for making HTTP requests and handling URLs
