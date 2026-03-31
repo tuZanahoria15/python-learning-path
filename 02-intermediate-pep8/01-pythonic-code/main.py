@@ -90,13 +90,26 @@ example_kwargs(
     retries=3,
 )
 
-API_KEY = "948a1310738140a59f74fb160f80aa6d"
+API_KEY = "948a1310738140a59f74fb160f80aa6d99"
 BASE_URL = "https://newsapi.org/v2/everything"
 
 # Importing necessary libraries for making HTTP requests and handling URLs
 import json
-import urllib.request
 import urllib.parse
+import urllib.request
+
+
+# New custom class for handling specific errors
+class NewSystemError(Exception):
+    """A general error has occurred in the application."""
+
+    pass
+
+
+class APIKeyError(NewSystemError):  # Heredity goes between ()
+    """An error has occurred related to API key issues."""
+
+    pass
 
 
 # STARTING SIMULATION: Mock API clients for demonstration purposes
@@ -105,10 +118,14 @@ def newsapi_client(api_key, query, timeout=30, retries=3):
     query_string = urllib.parse.urlencode({"q": query, "apiKey": api_key})
     url = f"{BASE_URL}?{query_string}"
 
-    with urllib.request.urlopen(url, timeout=timeout) as response:
-        # Bites data to string using decode() method
-        data = response.read().decode("utf-8")
-        return json.loads(data)  # Loads the content from the server in a dictionary
+    try:
+        with urllib.request.urlopen(url, timeout=timeout) as response:
+            # Bites data to string using decode() method
+            data = response.read().decode("utf-8")
+            return json.loads(data)  # Loads the content from the server in a dictionary
+    except urllib.error.HTTPError:
+        print("ERROR: The API KEY is invalid.")
+        raise APIKeyError("An error has occurred: API connection failed.")
     return f"NewsAPI: {query} with timeout {timeout}"
 
 
@@ -142,6 +159,14 @@ def fetch_news(api_name, *args, **kwargs):
 
 
 # Handling the response and printing article titles
-response_data = fetch_news("newsapi", api_key=API_KEY, query="Python programming")
-for article in response_data["articles"]:
-    print(article["title"])
+# Starting with response_data as None to ensure it is defined even if an exception occurs
+response_data = None
+try:
+    response_data = fetch_news("newsapi", api_key=API_KEY, query="Python programming")
+except APIKeyError as e:
+    print(f"{e}")
+
+# Checking if response_data is not None before trying to access its content
+if response_data:
+    for article in response_data["articles"]:
+        print(article["title"])
