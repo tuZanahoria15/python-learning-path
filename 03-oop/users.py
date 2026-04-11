@@ -1,7 +1,7 @@
 """Simple Herence and Polymorphism example with a Library System"""
 
 from typing import Protocol
-from main import Book
+
 
 class Borrowable(Protocol):
     def request_book(self, title: str) -> str:
@@ -50,17 +50,5 @@ class Teacher(User):
         return f"--> STATUS: Authorized book loan for:\n'{title}'\n"
 
 
-# Aplying Instances
-student = Student("Fernando", "21630243", "Computer Science")
-student1 = Student("Juan Carlos", "21630237", "Computer Science")
-teacher = Teacher("Ing. Selene", "86430987")
 
-# This cannot be added into the list because does not implement the Borrowable protocol
-book = Book("Python Fundamentals", "John Doe", "978-1234567890", True)
-
-# Polimorphism: Pylance recognizes book as an error because it does not have the method request_book, but since it implements the Borrowable protocol, it can be used in the same way as the other classes that implement the protocol.
-users: list[Borrowable] = [student, student1, teacher]
-
-for user in users:
-    print(user.request_book("Python Fundamentals"))
 
